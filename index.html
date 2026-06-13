@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VectorQuest: Desafío en el Plano Cartesiano</title>
+  <meta name="description" content="Juego interactivo de matemáticas para aprender plano cartesiano y vectores. Ideal para estudiantes de 7° y 8° básico.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+  
+  <!-- Google Fonts: Outfit & Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Animated Stars -->
+  <div class="stars-container">
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    <div class="stars3"></div>
+  </div>
+
+  <!-- Screen 1: Registration & Welcome -->
+  <div id="screen-register" class="screen active">
+    <div class="welcome-card glass">
+      <div class="logo-area">
+        <span class="game-tag">🕹️ APRENDE JUGANDO</span>
+        <h1>VECTOR<span>QUEST</span></h1>
+        <p class="subtitle">Navegación Vectorial en el Plano Cartesiano</p>
+        <p class="target-badge">Especial para 7° y 8° Básico</p>
+      </div>
+
+      <div class="form-container">
+        <div class="input-group">
+          <label for="player-nickname">Ingresa tu Nickname de Piloto:</label>
+          <input type="text" id="player-nickname" placeholder="Ej: Capitán Alfa" autocomplete="off" maxlength="15">
+        </div>
+
+        <div class="avatar-selection">
+          <label>Elige tu Avatar de Nave:</label>
+          <div class="avatar-grid">
+            <div class="avatar-option active" data-avatar="ship-blue">
+              <svg viewBox="0 0 60 60" width="50" height="50">
+                <path d="M30 5 L48 45 L30 35 L12 45 Z" fill="#00f0ff" stroke="#fff" stroke-width="2"/>
+                <polygon points="30,15 35,35 30,32 25,35" fill="#fff" opacity="0.8"/>
+              </svg>
+              <span>Phoenix</span>
+            </div>
+            <div class="avatar-option" data-avatar="ship-magenta">
+              <svg viewBox="0 0 60 60" width="50" height="50">
+                <path d="M30 5 L50 40 L38 38 L30 50 L22 38 L10 40 Z" fill="#bd00ff" stroke="#fff" stroke-width="2"/>
+                <circle cx="30" cy="28" r="5" fill="#fff" opacity="0.9"/>
+              </svg>
+              <span>Specter</span>
+            </div>
+            <div class="avatar-option" data-avatar="ship-green">
+              <svg viewBox="0 0 60 60" width="50" height="50">
+                <path d="M30 5 L45 25 L45 45 L30 38 L15 45 L15 25 Z" fill="#39ff14" stroke="#fff" stroke-width="2"/>
+                <line x1="15" y1="25" x2="45" y2="25" stroke="#fff" stroke-width="2"/>
+              </svg>
+              <span>Viper</span>
+            </div>
+            <div class="avatar-option" data-avatar="ship-orange">
+              <svg viewBox="0 0 60 60" width="50" height="50">
+                <path d="M30 5 L48 35 L40 45 L20 45 L12 35 Z" fill="#ff7700" stroke="#fff" stroke-width="2"/>
+                <polygon points="30,8 42,32 18,32" fill="#fff" opacity="0.5"/>
+              </svg>
+              <span>Orion</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-start-game" class="btn btn-glow">Iniciar Simulación 🚀</button>
+      </div>
+
+      <!-- Hall of Fame Preview on Landing -->
+      <div class="hall-of-fame-preview">
+        <h3>🏆 Salón de la Fama (Top 5)</h3>
+        <table id="leaderboard-table-preview">
+          <thead>
+            <tr>
+              <th>Rango</th>
+              <th>Piloto</th>
+              <th>Niveles</th>
+              <th>Puntaje</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Dynamic entries -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 2: Level Selection -->
+  <div id="screen-levels" class="screen">
+    <div class="container glass">
+      <div class="header-back">
+        <button id="btn-back-to-register" class="btn-text">← Cambiar de Piloto</button>
+      </div>
+      <h2>Selecciona tu Misión</h2>
+      <p class="levels-desc">Supera los desafíos en orden para dominar las traslaciones vectoriales.</p>
+      
+      <div class="levels-grid">
+        <!-- Level 1 -->
+        <div class="level-card" data-level="1">
+          <div class="level-badge">Nivel 1</div>
+          <h3>Primer Paso en el Espacio</h3>
+          <p>Ubicación de coordenadas y aplicación de un vector de traslación básico sin obstáculos.</p>
+          <div class="level-stars" id="stars-level-1">⭐⭐⭐</div>
+          <button class="btn btn-level" data-level="1">Iniciar</button>
+        </div>
+
+        <!-- Level 2 -->
+        <div class="level-card locked" data-level="2">
+          <div class="level-badge">Nivel 2</div>
+          <h3>Esquivando Escombros</h3>
+          <p>Esquiva un asteroide en tu ruta directa usando sumas y composición de vectores en el plano.</p>
+          <div class="level-stars" id="stars-level-2"></div>
+          <button class="btn btn-level" data-level="2" disabled>Bloqueado 🔒</button>
+        </div>
+
+        <!-- Level 3 -->
+        <div class="level-card locked" data-level="3">
+          <div class="level-badge">Nivel 3</div>
+          <h3>El Muro del Cuadrante II</h3>
+          <p>Usa componentes negativas y positivas para cruzar una barrera vertical entre cuadrantes.</p>
+          <div class="level-stars" id="stars-level-3"></div>
+          <button class="btn btn-level" data-level="3" disabled>Bloqueado 🔒</button>
+        </div>
+
+        <!-- Level 4 -->
+        <div class="level-card locked" data-level="4">
+          <div class="level-badge">Nivel 4</div>
+          <h3>Rescate Múltiple</h3>
+          <p>Planifica una trayectoria compleja para rescatar a dos astronautas antes de huir por el portal.</p>
+          <div class="level-stars" id="stars-level-4"></div>
+          <button class="btn btn-level" data-level="4" disabled>Bloqueado 🔒</button>
+        </div>
+
+        <!-- Level 5 -->
+        <div class="level-card locked" data-level="5">
+          <div class="level-badge">Nivel 5</div>
+          <h3>El Agujero Negro</h3>
+          <p>Esquiva la zona de peligro central y calcula la ruta más eficiente de escape.</p>
+          <div class="level-stars" id="stars-level-5"></div>
+          <button class="btn btn-level" data-level="5" disabled>Bloqueado 🔒</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 3: Active Game Screen -->
+  <div id="screen-game" class="screen">
+    <!-- Game HUD -->
+    <header class="game-hud glass">
+      <div class="hud-left">
+        <button id="btn-to-levels" class="btn btn-secondary">🛰️ Misiones</button>
+        <div class="hud-item level-info">
+          <span class="label">Misión Actual:</span>
+          <span id="hud-level-name" class="value">Nivel 1</span>
+        </div>
+      </div>
+      
+      <div class="hud-center">
+        <div class="hud-item player-name-display">
+          <span class="label">Piloto:</span>
+          <span id="hud-player-name" class="value">Capitán</span>
+        </div>
+        <div class="hud-item player-score">
+          <span class="label">Puntaje:</span>
+          <span id="hud-score" class="value">0000</span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="hud-item timer">
+          <span class="label">Tiempo:</span>
+          <span id="hud-timer" class="value">00:00</span>
+        </div>
+        <div class="hud-item current-coords">
+          <span class="label">Posición:</span>
+          <span id="hud-coords" class="value">(0, 0)</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <div class="game-main-layout">
+      
+      <!-- Left: Interactive Cartesian Plane -->
+      <section class="game-board-container glass">
+        <!-- Mathematical Instruction Box -->
+        <div class="instruction-box">
+          <p id="level-description">Cargando misión...</p>
+          <button id="btn-show-hint" class="btn-help">💡 ¿Necesitas pista?</button>
+        </div>
+
+        <!-- SVG Cartesian Plane -->
+        <div class="canvas-wrapper">
+          <svg id="cartesian-svg" viewBox="0 0 500 500" width="100%" height="100%">
+            <!-- SVG Grid & Labels will be dynamically generated by JS -->
+          </svg>
+        </div>
+      </section>
+
+      <!-- Right: Control / Command Panel -->
+      <aside class="control-panel glass">
+        <h2>SISTEMA DE NAVEGACIÓN</h2>
+        <p class="panel-desc">Programa los vectores de traslación para tu nave.</p>
+
+        <!-- Command Queue (Programmed Vectors) -->
+        <div class="vector-queue-container">
+          <h3>Ruta de Vuelo Planificada</h3>
+          <div id="vector-queue-list" class="vector-queue-list">
+            <div class="empty-queue-msg">Ningún vector ingresado. Ingresa coordenadas abajo.</div>
+            <!-- Vectors added dynamically:
+            <div class="vector-card">
+              <span class="vector-index">v₁</span>
+              <span class="vector-value">(3, 2)</span>
+              <button class="btn-delete-vector">&times;</button>
+            </div>
+            -->
+          </div>
+          <div class="route-summary" id="route-summary">
+            Posición final proyectada: <strong id="projected-coords">(0, 0)</strong>
+          </div>
+        </div>
+
+        <!-- Vector Input Form -->
+        <div class="vector-input-form">
+          <h3>Ingresar Vector Traslación</h3>
+          
+          <div class="inputs-row">
+            <div class="input-field">
+              <label for="vector-x">Componente X (Eje Horizontal)</label>
+              <div class="number-input-wrapper">
+                <button type="button" class="btn-spin btn-spin-down" data-target="vector-x">-</button>
+                <input type="number" id="vector-x" value="0" min="-12" max="12">
+                <button type="button" class="btn-spin btn-spin-up" data-target="vector-x">+</button>
+              </div>
+              <span class="input-direction-text" id="direction-x">Estacionario</span>
+            </div>
+
+            <div class="input-field">
+              <label for="vector-y">Componente Y (Eje Vertical)</label>
+              <div class="number-input-wrapper">
+                <button type="button" class="btn-spin btn-spin-down" data-target="vector-y">-</button>
+                <input type="number" id="vector-y" value="0" min="-12" max="12">
+                <button type="button" class="btn-spin btn-spin-up" data-target="vector-y">+</button>
+              </div>
+              <span class="input-direction-text" id="direction-y">Estacionario</span>
+            </div>
+          </div>
+
+          <!-- Mathematical formula preview -->
+          <div class="vector-formula-preview">
+            Vector a añadir: <span id="formula-preview-math" class="math-font">\vec{v} = (0, 0)</span>
+          </div>
+
+          <button id="btn-add-vector" class="btn btn-primary">➕ Agregar a la Ruta</button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons-group">
+          <button id="btn-run-simulation" class="btn btn-success btn-large">🚀 EJECUTAR TRAYECTORIA</button>
+          <button id="btn-clear-route" class="btn btn-danger">🗑️ Borrar Ruta</button>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Modal: Level Completed -->
+  <div id="modal-success" class="modal">
+    <div class="modal-content glass success-theme">
+      <div class="modal-header">
+        <span class="modal-icon">🎉</span>
+        <h2>¡Misión Completada!</h2>
+      </div>
+      <div class="modal-body">
+        <p class="congrats-text">¡Buen trabajo, piloto! Has rescatado la tripulación y alcanzado el portal de escape.</p>
+        
+        <div class="stars-rating" id="success-stars">
+          ⭐⭐⭐
+        </div>
+
+        <div class="stats-summary">
+          <div class="stat-box">
+            <span class="stat-label">Puntaje del Nivel</span>
+            <span id="success-level-score" class="stat-val">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Tiempo Transcurrido</span>
+            <span id="success-time" class="stat-val">00:00</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Vectores Usados</span>
+            <span id="success-vectors-count" class="stat-val">0</span>
+          </div>
+        </div>
+
+        <div class="educational-feedback" id="success-math-feedback">
+          Composición del vector total: (x, y). ¡Excelente manejo de las traslaciones!
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-success-retry" class="btn btn-secondary">Reintentar</button>
+        <button id="btn-success-next" class="btn btn-success">Siguiente Misión ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Game Over / Collision -->
+  <div id="modal-fail" class="modal">
+    <div class="modal-content glass fail-theme">
+      <div class="modal-header">
+        <span class="modal-icon">💥</span>
+        <h2>¡Alerta de Colisión!</h2>
+      </div>
+      <div class="modal-body">
+        <p id="fail-reason" class="fail-text">Tu nave ha colisionado con un asteroide en la coordenada (x, y).</p>
+        
+        <div class="fail-visual-aid">
+          <svg viewBox="0 0 100 100" width="80" height="80">
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#ff003c" stroke-width="4" stroke-dasharray="6,6"/>
+            <path d="M30 30 L70 70 M70 30 L30 70" stroke="#ff003c" stroke-width="8" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="educational-feedback" id="fail-math-feedback">
+          Recuerda: Los obstáculos obstruyen la traslación directa. Sumar vectores te permite esquivarlos creando una ruta segura.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-fail-hint" class="btn btn-secondary">💡 Ver Pista</button>
+        <button id="btn-fail-retry" class="btn btn-danger">Reconfigurar Ruta 🔧</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Math Hint -->
+  <div id="modal-hint" class="modal">
+    <div class="modal-content glass hint-theme">
+      <div class="modal-header">
+        <span class="modal-icon">💡</span>
+        <h2>Asistencia de Vuelo</h2>
+      </div>
+      <div class="modal-body">
+        <p id="hint-text">Cargando sugerencia matemática...</p>
+        <div class="hint-graphic">
+          <svg viewBox="0 0 200 120" width="100%" height="100" style="background: rgba(0,0,0,0.3); border-radius: 8px;">
+            <!-- Simple mathematical vector sum diagram -->
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#00f0ff" />
+              </marker>
+            </defs>
+            <grid stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="20" y1="100" x2="180" y2="100" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+            <line x1="20" y1="20" x2="20" y2="100" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+            
+            <line x1="20" y1="100" x2="100" y2="60" stroke="#00f0ff" stroke-width="3" marker-end="url(#arrow)"/>
+            <text x="50" y="70" fill="#00f0ff" font-size="12">v₁ = (X₁, Y₁)</text>
+            
+            <line x1="100" y1="60" x2="160" y2="30" stroke="#bd00ff" stroke-width="3" marker-end="url(#arrow)"/>
+            <text x="135" y="40" fill="#bd00ff" font-size="12">v₂ = (X₂, Y₂)</text>
+
+            <line x1="20" y1="100" x2="160" y2="30" stroke="#39ff14" stroke-width="2" stroke-dasharray="4,4"/>
+            <text x="70" y="35" fill="#39ff14" font-size="11">Ruta Total = v₁ + v₂</text>
+          </svg>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-close-hint" class="btn btn-primary">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Epic Victory / Game Completed -->
+  <div id="modal-epic-victory" class="modal">
+    <div class="modal-content glass victory-theme">
+      <div class="modal-header">
+        <span class="modal-icon">🏆</span>
+        <h2 class="epic-title">¡MÁSTER VECTORIAL DEL COSMOS!</h2>
+      </div>
+      <div class="modal-body">
+        <!-- SVG Gold Medal -->
+        <div class="epic-medal-container">
+          <svg viewBox="0 0 100 100" width="120" height="120" class="svg-epic-medal">
+            <defs>
+              <radialGradient id="gold" cx="50%" cy="30%" r="50%">
+                <stop offset="0%" stop-color="#fffbcf"/>
+                <stop offset="40%" stop-color="#ffd700"/>
+                <stop offset="100%" stop-color="#b8860b"/>
+              </radialGradient>
+              <filter id="glow-gold" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+            <!-- Ribbon -->
+            <polygon points="35,10 50,55 65,10" fill="#bd00ff" />
+            <polygon points="40,10 50,55 60,10" fill="#00f0ff" />
+            <!-- Medal circle -->
+            <circle cx="50" cy="60" r="25" fill="url(#gold)" stroke="#fff" stroke-width="2" filter="url(#glow-gold)" />
+            <circle cx="50" cy="60" r="20" fill="none" stroke="#b8860b" stroke-width="1.5" stroke-dasharray="3,2" />
+            <!-- Star inside -->
+            <polygon points="50,45 53,53 62,53 55,59 58,68 50,62 42,68 45,59 38,53 47,53" fill="#fff" />
+          </svg>
+        </div>
+        
+        <p class="congrats-text epic-congrats">
+          ¡Felicidades, Comandante <strong id="epic-player-name">Piloto</strong>!
+        </p>
+
+        <p class="epic-description">
+          Has completado todas las misiones del simulador de vuelo <strong>VectorQuest</strong>.
+          Gracias a tus extraordinarios cálculos de adición de vectores y tu excelente precisión para ubicar coordenadas,
+          has rescatado a toda la tripulación varada en los confines del universo y esquivado los peligros del agujero negro.
+          ¡La galaxia entera celebra tu graduación!
+        </p>
+
+        <div class="epic-stats-card">
+          <div class="epic-stat-row">
+            <span>Puntaje Final Acumulado:</span>
+            <strong id="epic-total-score">0000</strong>
+          </div>
+          <div class="epic-stat-row">
+            <span>Rango Obtenido:</span>
+            <strong class="rank-gold">Gran Almirante del Eje Cartesiano</strong>
+          </div>
+        </div>
+
+        <div class="educational-feedback" style="border-left: 3px solid #ffd700; color: #ffeb99; text-align: left; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; line-height: 1.4;">
+          <strong>Certificado de Competencia (7°/8° Básico):</strong> Dominio comprobado en: Identificación de coordenadas (X, Y), traslaciones geométricas y composición analítica de vectores resultantes en los 4 cuadrantes.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-epic-restart" class="btn btn-secondary">Reiniciar Progreso</button>
+        <button id="btn-epic-leaderboard" class="btn btn-glow">Ver Salón de la Fama 🏆</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio elements for feedback (synthesized using Web Audio API in JS, no assets needed!) -->
+
+  <!-- Levels and Main Scripts -->
+  <script src="levels.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
