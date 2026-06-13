@@ -250,6 +250,125 @@ const SvgAssets = {
   }
 };
 
+// Background Music Synthesizer & Looper
+const MusicPlayer = {
+  ctx: null,
+  gainNode: null,
+  isPlaying: false,
+  isMuted: false,
+  step: 0,
+  intervalId: null,
+
+  tempo: 220, // ms per step (approx 0.22 seconds)
+  
+  bassFreqs: [
+    130.81, 0, 0, 0, // C3
+    103.83, 0, 0, 0, // Ab2
+    155.56, 0, 0, 0, // Eb3
+    97.99,  0, 0, 0  // G2
+  ],
+  
+  leadFreqs: [
+    261.63, 311.13, 392.00, 523.25, // Cm arpeggio
+    261.63, 311.13, 415.30, 523.25, // Ab arpeggio
+    233.08, 311.13, 392.00, 466.16, // Eb arpeggio
+    246.94, 293.66, 392.00, 493.88  // G major arpeggio
+  ],
+
+  init(audioCtx) {
+    this.ctx = audioCtx;
+    this.gainNode = this.ctx.createGain();
+    this.gainNode.connect(this.ctx.destination);
+    this.gainNode.gain.setValueAtTime(0, this.ctx.currentTime); // Start silent
+  },
+
+  start() {
+    if (this.isPlaying) return;
+    if (!this.ctx) {
+      SoundEffects.init();
+      this.init(SoundEffects.ctx);
+    }
+    if (!this.ctx) return;
+    
+    this.isPlaying = true;
+    this.step = 0;
+    
+    this.updateVolume();
+
+    this.intervalId = setInterval(() => {
+      this.playStep();
+    }, this.tempo);
+  },
+
+  stop() {
+    if (!this.isPlaying) return;
+    this.isPlaying = false;
+    clearInterval(this.intervalId);
+    this.intervalId = null;
+  },
+
+  mute() {
+    this.isMuted = true;
+    this.updateVolume();
+  },
+
+  unmute() {
+    this.isMuted = false;
+    this.updateVolume();
+  },
+
+  updateVolume() {
+    if (!this.gainNode) return;
+    const targetVol = this.isMuted ? 0 : 0.4; // Very high volume space ambient
+    this.gainNode.gain.setTargetAtTime(targetVol, this.ctx.currentTime, 0.1);
+  },
+
+  playStep() {
+    if (!this.isPlaying || this.isMuted) return;
+    if (this.ctx.state === 'suspended') return;
+    
+    const now = this.ctx.currentTime;
+    
+    // 1. Play Bass Note
+    const bassFreq = this.bassFreqs[this.step];
+    if (bassFreq > 0) {
+      const osc = this.ctx.createOscillator();
+      const noteGain = this.ctx.createGain();
+      osc.connect(noteGain);
+      noteGain.connect(this.gainNode);
+      
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(bassFreq, now);
+      
+      noteGain.gain.setValueAtTime(0.4, now);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, now + this.tempo/1000 * 3.5);
+      
+      osc.start(now);
+      osc.stop(now + this.tempo/1000 * 3.5);
+    }
+    
+    // 2. Play Arpeggio Lead Note
+    const leadFreq = this.leadFreqs[this.step];
+    if (leadFreq > 0) {
+      const osc = this.ctx.createOscillator();
+      const noteGain = this.ctx.createGain();
+      osc.connect(noteGain);
+      noteGain.connect(this.gainNode);
+      
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(leadFreq, now);
+      
+      noteGain.gain.setValueAtTime(0.18, now);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, now + this.tempo/1000 * 0.95);
+      
+      osc.start(now);
+      osc.stop(now + this.tempo/1000 * 0.95);
+    }
+
+    this.step = (this.step + 1) % 16;
+  }
+};
+
 // Core Game Controller
 const Game = {
   // Game States
@@ -274,8 +393,31 @@ const Game = {
   svgSize: 500,
   svgPadding: 45,
 
+  renderLevelGrid() {
+    const grid = document.querySelector(".levels-grid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    LEVELS.forEach(level => {
+      const card = document.createElement("div");
+      card.className = "level-card locked";
+      card.dataset.level = level.id;
+      
+      const shortName = level.name.includes(":") ? level.name.split(":")[1].trim() : level.name;
+      
+      card.innerHTML = `
+        <div class="level-badge">Nivel ${level.id}</div>
+        <h3>${shortName}</h3>
+        <p>${level.description.replace("Misión: ", "")}</p>
+        <div class="level-stars"></div>
+        <button class="btn btn-level" data-level="${level.id}" disabled>Bloqueado 🔒</button>
+      `;
+      grid.appendChild(card);
+    });
+  },
+
   init() {
     this.loadPlayerData();
+    this.renderLevelGrid();
     this.bindEvents();
     this.updateLeaderboard();
     this.updateLevelSelectionUI();
@@ -330,8 +472,41 @@ const Game = {
       this.player.nickname = nick;
       this.savePlayerData();
       SoundEffects.playBeep();
+      
+      // Start background music loop
+      MusicPlayer.start();
+      
       this.showScreen("screen-levels");
       this.updateLevelSelectionUI();
+    });
+
+    // Welcome Screen Mute Button
+    document.getElementById("btn-welcome-mute").addEventListener("click", () => {
+      MusicPlayer.start(); // Ensure context is initialized
+      SoundEffects.playBeep();
+      if (MusicPlayer.isMuted) {
+        MusicPlayer.unmute();
+        document.getElementById("btn-welcome-mute").innerText = "🔊";
+        document.getElementById("btn-hud-mute").innerText = "🔊";
+      } else {
+        MusicPlayer.mute();
+        document.getElementById("btn-welcome-mute").innerText = "🔇";
+        document.getElementById("btn-hud-mute").innerText = "🔇";
+      }
+    });
+
+    // HUD Mute Button
+    document.getElementById("btn-hud-mute").addEventListener("click", () => {
+      SoundEffects.playBeep();
+      if (MusicPlayer.isMuted) {
+        MusicPlayer.unmute();
+        document.getElementById("btn-hud-mute").innerText = "🔊";
+        document.getElementById("btn-welcome-mute").innerText = "🔊";
+      } else {
+        MusicPlayer.mute();
+        document.getElementById("btn-hud-mute").innerText = "🔇";
+        document.getElementById("btn-welcome-mute").innerText = "🔇";
+      }
     });
 
     document.getElementById("btn-back-to-register").addEventListener("click", () => {
@@ -339,16 +514,20 @@ const Game = {
       this.showScreen("screen-register");
     });
 
-    // 2. Level selection
-    document.querySelectorAll(".btn-level").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        const lvlId = parseInt(btn.dataset.level);
-        if (this.player.levelsProgress.includes(lvlId)) {
-          SoundEffects.playBeep();
-          this.loadLevel(lvlId - 1);
+    // 2. Level selection (using event delegation for dynamic level cards)
+    const levelsGrid = document.querySelector(".levels-grid");
+    if (levelsGrid) {
+      levelsGrid.addEventListener("click", (e) => {
+        const btn = e.target.closest(".btn-level");
+        if (btn && !btn.disabled) {
+          const lvlId = parseInt(btn.dataset.level);
+          if (this.player.levelsProgress.includes(lvlId)) {
+            SoundEffects.playBeep();
+            this.loadLevel(lvlId - 1);
+          }
         }
       });
-    });
+    }
 
     document.getElementById("btn-to-levels").addEventListener("click", () => {
       if (this.isSimulating) return;
@@ -511,6 +690,9 @@ const Game = {
       this.player.levelsProgress = [1];
       this.player.totalScore = 0;
       this.savePlayerData();
+      
+      // Restart background music
+      MusicPlayer.start();
       
       this.showScreen("screen-levels");
       this.updateLevelSelectionUI();
@@ -1240,6 +1422,7 @@ const Game = {
 
       // Check if this was the last level
       if (this.currentLevel.id === LEVELS.length) {
+        MusicPlayer.stop();
         setTimeout(() => {
           SoundEffects.playEpicVictoryTheme();
           document.getElementById("epic-player-name").innerText = this.player.nickname;
